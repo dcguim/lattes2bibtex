@@ -5,7 +5,15 @@
 			   (list (list "title" "TITULO-DO-CAPITULO-DO-LIVRO") (list "publisher" "NOME-DA-EDITORA")
 				 (list "year" "ANO"))))
 
-(defparameter *entry* '(("article" . 0) ("book" . 1) ("inbook" . 2)))
+(defparameter *entry-data* (list "DADOS-BASICOS-DO-ARTIGO" "DETALHAMENTO-DO-ARTIGO"
+				 "DADOS-BASICOS-DO-LIVRO" "DETALHAMENTO-DO-LIVRO"
+				 "DADOS-BASICOS-DO-CAPITULO" "DETALHAMENTO-DO-CAPITULO"))
+
+(defparameter *entry-name* (list "ARTIGO-PUBLICADO"
+				 "LIVRO-PUBLICADO-OU-ORGANIZADO"
+				 "CAPITULO-DE-LIVRO-PUBLICADO"))
+
+(defparameter *entry-code* '(("article" . 0) ("book" . 1) ("inbook" . 2)))
 
 (defclass lattes-handler (sax:default-handler)
   ((hash 
@@ -20,7 +28,11 @@
    (current-entry-type
     :initform ""
     :accessor lh-entry-type)))
-    
+
+(defmacro comp-lname (entries)
+  (let ((ent (eval entries)))
+    `(or 
+      ,@(loop for e in ent collect `(equal local-name ,e)))))
 
 (defun print-hash (hash)
   (maphash #'(lambda (k v) 
@@ -31,7 +43,7 @@
 		   (format t "TIPO DE ENTRADA:~33t~a~%" type)
 		   (if (equal type "inbook")
 		       (format t "PAGINAS:~33t~a~%" (gethash "page" v)))
-		   (dolist (at (nth (cdr (assoc type *entry* :test #'string=)) *attr*))
+		   (dolist (at (nth (cdr (assoc type *entry-code* :test #'string=)) *attr*))
 		     (format t "~a:~33t~a~%" (cadr at) (gethash (car at) v))))
 		   (format t "~%"))) hash))
 
@@ -39,29 +51,25 @@
 	   (setf (gethash key (gethash (lh-entry-no obj) (lh-hash obj))) value))
 
 (defmethod sax:start-element ((lh lattes-handler) (namespace t) (local-name t) (qname t) (attributes t))
-  (cond ((or (equal local-name "ARTIGO-PUBLICADO") 
-	     (equal local-name "LIVRO-PUBLICADO-OU-ORGANIZADO")
-	     (equal local-name "CAPITULO-DE-LIVRO-PUBLICADO"))
+  (cond ((comp-lname *entry-name*)
 	 (setf (lh-auths lh) '())
 	 (let ((seq (sax:attribute-value (sax:find-attribute "SEQUENCIA-PRODUCAO" attributes))))
 	   (setf (gethash seq (lh-hash lh)) (make-hash-table :test #'equalp))
 	   (setf (lh-entry-no lh) seq)
-	   (cond ((equal local-name "ARTIGO-PUBLICADO")	       
-		 (setf (lh-entry-type lh) 0)
-		 (insert-pair "key" (concatenate 'string "article-" seq) lh)
-		 (insert-pair "entry-type" "article" lh))
-	       ((equal local-name "LIVRO-PUBLICADO-OU-ORGANIZADO")	
-		 (setf (lh-entry-type lh) 1)
-		 (insert-pair "key" (concatenate 'string "book-" seq) lh)
-		 (insert-pair "entry-type" "book" lh))
-	       ((equal local-name "CAPITULO-DE-LIVRO-PUBLICADO")
-		(setf (lh-entry-type lh) 2)
-		(insert-pair "key" (concatenate 'string "inbook-" seq) lh)
-		(insert-pair "entry-type" "inbook" lh)))))
-	((or (equal local-name "DADOS-BASICOS-DO-ARTIGO") (equal local-name "DETALHAMENTO-DO-ARTIGO")
-	     (equal local-name "DADOS-BASICOS-DO-LIVRO")  (equal local-name "DETALHAMENTO-DO-LIVRO")
-	     (equal local-name "DADOS-BASICOS-DO-CAPITULO") (equal local-name "DETALHAMENTO-DO-CAPITULO"))
-	 (if (and (equal (lh-entry-type lh) (cdr (assoc "inbook" *entry* :test #'string=)))
+	   (cond ((equal local-name "ARTIGO-PUBLICADO")      
+		  (setf (lh-entry-type lh) 0)
+		  (insert-pair "key" (concatenate 'string "article-" seq) lh)
+		  (insert-pair "entry-type" "article" lh))
+		 ((equal local-name "LIVRO-PUBLICADO-OU-ORGANIZADO")	
+		  (setf (lh-entry-type lh) 1)
+		  (insert-pair "key" (concatenate 'string "book-" seq) lh)
+		  (insert-pair "entry-type" "book" lh))
+		 ((equal local-name "CAPITULO-DE-LIVRO-PUBLICADO")
+		  (setf (lh-entry-type lh) 2)
+		  (insert-pair "key" (concatenate 'string "inbook-" seq) lh)
+		  (insert-pair "entry-type" "inbook" lh)))))
+	((comp-lname *entry-data*)
+	 (if (and (equal (lh-entry-type lh) (cdr (assoc "inbook" *entry-code* :test #'string=)))
 		  (equal local-name "DETALHAMENTO-DO-CAPITULO"))			 
 	     (let ((i (sax:find-attribute "PAGINA-INICIAL" attributes)) (f (sax:find-attribute "PAGINA-FINAL" attributes)))
 	       (if (and i f)
