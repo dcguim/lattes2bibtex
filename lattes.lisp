@@ -3,7 +3,7 @@
 			   (list (list "year" "ANO") (list "title" "TITULO-DO-LIVRO") (list "publisher" "NOME-DA-EDITORA")  
 			         (list "language" "IDIOMA"))
 			   (list (list "title" "TITULO-DO-CAPITULO-DO-LIVRO") (list "publisher" "NOME-DA-EDITORA")
-				 (list "year" "ANO"))))
+				 (list "year" "ANO")(list "booktitle" "TITULO-DO-LIVRO"))))
 
 (defparameter *entry-data* (list "DADOS-BASICOS-DO-ARTIGO" "DETALHAMENTO-DO-ARTIGO"
 				 "DADOS-BASICOS-DO-LIVRO" "DETALHAMENTO-DO-LIVRO"
@@ -13,7 +13,7 @@
 				 "LIVRO-PUBLICADO-OU-ORGANIZADO"
 				 "CAPITULO-DE-LIVRO-PUBLICADO"))
 
-(defparameter *entry-code* '(("article" . 0) ("book" . 1) ("inbook" . 2)))
+(defparameter *entry-code* '(("article" . 0) ("book" . 1) ("incollection" . 2)))
 
 (defclass lattes-handler (sax:default-handler)
   ((hash 
@@ -70,7 +70,7 @@
 		 ((equal local-name "LIVRO-PUBLICADO-OU-ORGANIZADO")	
 		  (insert-entry "book" lh))
 		 ((equal local-name "CAPITULO-DE-LIVRO-PUBLICADO")
-		  (insert-entry "inbook" lh)))))
+		  (insert-entry "incollection" lh)))))
 	((comp-lname *entry-data*)
 	 (if (and (equal (lh-entry-code lh) (cdr (assoc "inbook" *entry-code* :test #'string=)))
 		  (equal local-name "DETALHAMENTO-DO-CAPITULO"))			 
@@ -102,6 +102,7 @@
 ;; use case
 ;;; Make an instance of lattes-handler
 ;;; > (defparameter i1 (make-instance 'lattes-handler))
+
 
 ;;; Parse the xml 
 ;;; > (cxml:parse #p"/path/to/the/file.xml" i1) 
