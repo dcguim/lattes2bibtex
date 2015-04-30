@@ -25,14 +25,25 @@
    (authors
     :initform '()
     :accessor lh-auths)
-   (current-entry-type
+   (current-entry-code
     :initform ""
-    :accessor lh-entry-type)))
+    :accessor lh-entry-code)))
 
 (defmacro comp-lname (entries)
   (let ((ent (eval entries)))
     `(or 
       ,@(loop for e in ent collect `(equal local-name ,e)))))
+
+ (defun insert-pair (key value obj)
+	   (setf (gethash key (gethash (lh-entry-no obj) (lh-hash obj))) value))
+
+(defun insert-entry (type obj)
+  (let ((code (cdr (assoc type *entry-code* :test #'string=)))
+	(-seq (concatenate 'string "-" (lh-entry-no obj))))
+    (when code	
+	(setf (lh-entry-code obj) code)
+	(insert-pair "key" (concatenate 'string type -seq) obj)
+	(insert-pair "entry-type" type obj))))
 
 (defun print-hash (hash)
   (maphash #'(lambda (k v) 
@@ -47,8 +58,6 @@
 		     (format t "~a:~33t~a~%" (cadr at) (gethash (car at) v))))
 		   (format t "~%"))) hash))
 
- (defun insert-pair (key value obj)
-	   (setf (gethash key (gethash (lh-entry-no obj) (lh-hash obj))) value))
 
 (defmethod sax:start-element ((lh lattes-handler) (namespace t) (local-name t) (qname t) (attributes t))
   (cond ((comp-lname *entry-name*)
@@ -57,24 +66,18 @@
 	   (setf (gethash seq (lh-hash lh)) (make-hash-table :test #'equalp))
 	   (setf (lh-entry-no lh) seq)
 	   (cond ((equal local-name "ARTIGO-PUBLICADO")      
-		  (setf (lh-entry-type lh) 0)
-		  (insert-pair "key" (concatenate 'string "article-" seq) lh)
-		  (insert-pair "entry-type" "article" lh))
+		  (insert-entry "article" lh))
 		 ((equal local-name "LIVRO-PUBLICADO-OU-ORGANIZADO")	
-		  (setf (lh-entry-type lh) 1)
-		  (insert-pair "key" (concatenate 'string "book-" seq) lh)
-		  (insert-pair "entry-type" "book" lh))
+		  (insert-entry "book" lh))
 		 ((equal local-name "CAPITULO-DE-LIVRO-PUBLICADO")
-		  (setf (lh-entry-type lh) 2)
-		  (insert-pair "key" (concatenate 'string "inbook-" seq) lh)
-		  (insert-pair "entry-type" "inbook" lh)))))
+		  (insert-entry "inbook" lh)))))
 	((comp-lname *entry-data*)
-	 (if (and (equal (lh-entry-type lh) (cdr (assoc "inbook" *entry-code* :test #'string=)))
+	 (if (and (equal (lh-entry-code lh) (cdr (assoc "inbook" *entry-code* :test #'string=)))
 		  (equal local-name "DETALHAMENTO-DO-CAPITULO"))			 
 	     (let ((i (sax:find-attribute "PAGINA-INICIAL" attributes)) (f (sax:find-attribute "PAGINA-FINAL" attributes)))
 	       (if (and i f)
 		   (insert-pair "page" (format nil "~a--~a"(sax:attribute-value i) (sax:attribute-value f)) lh))))
-	 (dolist (at (nth (lh-entry-type lh) *attr*))
+	 (dolist (at (nth (lh-entry-code lh) *attr*))
 	   (let ((e (sax:find-attribute (cadr at)  attributes)))
 	     (if e
 		 (insert-pair (car at) (sax:attribute-value e) lh)))))
@@ -82,7 +85,7 @@
 	 (let ((e (sax:find-attribute "NOME-COMPLETO-DO-AUTOR" attributes)))
 	   (if e
 	       (setf (lh-auths lh) (append (lh-auths lh) (list (sax:attribute-value e)))))))))
-	       
+
 
 (defmethod sax:end-element ((lh lattes-handler) (namespace t) (local-name t) (qname t))
   (cond ((or (equal local-name "ARTIGO-PUBLICADO") 
