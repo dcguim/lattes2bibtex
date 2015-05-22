@@ -14,6 +14,7 @@
   <xsl:template match = "PRODUCAO-BIBLIOGRAFICA">
     <xsl:apply-templates select = "ARTIGOS-PUBLICADOS"/>
     <xsl:apply-templates select = "LIVROS-E-CAPITULOS"/>
+    <xsl:apply-templates select = "TRABALHOS-EM-EVENTOS"/>
   </xsl:template>
 
   <xsl:template match = "ARTIGOS-PUBLICADOS/ARTIGO-PUBLICADO">
@@ -73,19 +74,40 @@
  </xsl:template>
  <xsl:template match = "DADOS-BASICOS-DO-CAPITULO">
    <bibtex:title>
-     <xsl:apply-templates select="@TITULO-DO-CAPITULO-DO-LIVRO"/>
+     <xsl:apply-templates select = "@TITULO-DO-CAPITULO-DO-LIVRO"/>
    </bibtex:title>
    <bibtex:year>
-     <xsl:apply-templates select="@ANO"/>
+     <xsl:apply-templates select = "@ANO"/>
    </bibtex:year>
  </xsl:template>
  <xsl:template match ="DETALHAMENTO-DO-CAPITULO">
    <bibtex:booktitle>
-     <xsl:apply-templates select="@TITULO-DO-LIVRO"/>
+     <xsl:apply-templates select = "@TITULO-DO-LIVRO"/>
    </bibtex:booktitle>
    <bibtex:publisher>
-     <xsl:apply-templates select="@NOME-DA-EDITORA"/>
+     <xsl:apply-templates select = "@NOME-DA-EDITORA"/>
    </bibtex:publisher>
  </xsl:template>
 
+ <xsl:template match = "TRABALHOS-EM-EVENTOS/TRABALHO-EM-EVENTOS">
+   <bibtex:entry>
+     <bibtex:inproceedings>
+      <xsl:apply-templates select = "DADOS-BASICOS-DO-TRABALHO"/>
+      <xsl:apply-templates select = "DETALHAMENTO-DO-TRABALHO"/>
+     </bibtex:inproceedings>
+   </bibtex:entry>
+ </xsl:template>
+<xsl:template match ="DADOS-BASICOS-DO-TRABALHO">
+   <bibtex:title>
+     <xsl:apply-templates select = "@TITULO-DO-TRABALHO"/>
+   </bibtex:title>
+   <bibtex:year>
+     <xsl:apply-templates select = "@ANO-DO-TRABALHO"/>
+   </bibtex:year>
+ </xsl:template>
+<xsl:template match ="DETALHAMENTO-DO-TRABALHO">
+   <bibtex:booktitle>
+     <xsl:apply-templates select = "@TITULO-DOS-ANAIS-OU-PROCEEDINGS"/>
+   </bibtex:booktitle>
+ </xsl:template>
 </xsl:stylesheet>
