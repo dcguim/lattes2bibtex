@@ -8,9 +8,51 @@
       <xsl:apply-templates select = "CURRICULO-VITAE"/>
     </bibtex:file>
   </xsl:template>
-  <xsl:template match = "CURRICULO-VITAE">
-    <xsl:apply-templates  select = "PRODUCAO-BIBLIOGRAFICA"/>
+  <xsl:template match = "CURRICULO-VITAE"> 
+    <xsl:apply-templates select = "DADOS-GERAIS | PRODUCAO-BIBLIOGRAFICA"/>
   </xsl:template>
+  
+  <xsl:template match = "DADOS-GERAIS">
+    <xsl:apply-templates select=".//MESTRADO | .//DOUTORADO"/>
+  </xsl:template>
+  
+  <xsl:template match = "MESTRADO">
+    <bibtex:entry>
+      <bibtex:masterthesis>
+	<bibtex:title>
+	  <xsl:apply-templates select = "@TITULO-DA-DISSERTACAO-TESE"/>
+	</bibtex:title>
+	<bibtex:school>
+	  <xsl:apply-templates select = "@NOME-INSTITUICAO"/>
+	</bibtex:school>
+	<bibtex:author>
+	  <xsl:apply-templates select="ancestor::DADOS-GERAIS/@NOME-COMPLETO"/>
+	</bibtex:author>
+	<bibtex:year>
+	   <xsl:apply-templates select="@ANO-DE-OBTENCAO-DO-TITULO"/>
+	</bibtex:year>
+      </bibtex:masterthesis>
+    </bibtex:entry>
+  </xsl:template>
+  <xsl:template match = "DOUTORADO">
+    <bibtex:entry>
+      <bibtex:phdthesis>
+	<bibtex:title>
+	  <xsl:apply-templates select = "@TITULO-DA-DISSERTACAO-TESE"/>
+	</bibtex:title>
+	<bibtex:school>
+	  <xsl:apply-templates select = "@NOME-INSTITUICAO"/>
+	</bibtex:school>
+	<bibtex:author>
+	  <xsl:apply-templates select="ancestor::DADOS-GERAIS/@NOME-COMPLETO"/>
+	</bibtex:author>
+	<bibtex:year>
+	  <xsl:apply-templates select="@ANO-DE-OBTENCAO-DO-TITULO"/>
+	</bibtex:year>
+      </bibtex:phdthesis>
+    </bibtex:entry>
+  </xsl:template>
+
   <xsl:template match = "PRODUCAO-BIBLIOGRAFICA">
     <xsl:apply-templates select = "ARTIGOS-PUBLICADOS"/>
     <xsl:apply-templates select = "LIVROS-E-CAPITULOS"/>
@@ -110,4 +152,5 @@
      <xsl:apply-templates select = "@TITULO-DOS-ANAIS-OU-PROCEEDINGS"/>
    </bibtex:booktitle>
  </xsl:template>
+ 
 </xsl:stylesheet>
