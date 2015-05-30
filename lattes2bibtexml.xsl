@@ -64,6 +64,13 @@
       <bibtex:article>
 	<xsl:apply-templates select = "DADOS-BASICOS-DO-ARTIGO"/>
 	<xsl:apply-templates select = "DETALHAMENTO-DO-ARTIGO"/>
+	<bibtex:author>
+	<xsl:for-each select = "AUTORES[not(position()=last())]">
+	  <xsl:apply-templates select = "@NOME-COMPLETO-DO-AUTOR"/>
+	  and
+	</xsl:for-each>
+	 <xsl:apply-templates select = "AUTORES[position()=last()]/@NOME-COMPLETO-DO-AUTOR"/>
+	</bibtex:author>
       </bibtex:article>
     </bibtex:entry>
   </xsl:template>
@@ -89,6 +96,13 @@
       <bibtex:book>
 	<xsl:apply-templates select = "DADOS-BASICOS-DO-LIVRO"/>
 	<xsl:apply-templates select = "DETALHAMENTO-DO-LIVRO"/>
+	<bibtex:author>
+	<xsl:for-each select = "AUTORES[not(position()=last())]">
+	  <xsl:apply-templates select = "@NOME-COMPLETO-DO-AUTOR"/>
+	  and
+	</xsl:for-each>
+	 <xsl:apply-templates select = "AUTORES[position()=last()]/@NOME-COMPLETO-DO-AUTOR"/>
+	</bibtex:author>
       </bibtex:book>
     </bibtex:entry>
   </xsl:template>
@@ -111,6 +125,13 @@
       <bibtex:incollection>
 	<xsl:apply-templates select = "DADOS-BASICOS-DO-CAPITULO"/>
 	<xsl:apply-templates select = "DETALHAMENTO-DO-CAPITULO"/>
+	<bibtex:author>
+	  <xsl:for-each select = "AUTORES[not(position()=last())]">
+	    <xsl:apply-templates select = "@NOME-COMPLETO-DO-AUTOR"/>
+	    and
+	  </xsl:for-each>
+	  <xsl:apply-templates select = "AUTORES[position()=last()]/@NOME-COMPLETO-DO-AUTOR"/>
+	</bibtex:author>
       </bibtex:incollection>
     </bibtex:entry>
  </xsl:template>
@@ -136,6 +157,13 @@
      <bibtex:inproceedings>
       <xsl:apply-templates select = "DADOS-BASICOS-DO-TRABALHO"/>
       <xsl:apply-templates select = "DETALHAMENTO-DO-TRABALHO"/>
+      <bibtex:author>
+	<xsl:for-each select = "AUTORES[not(position()=last())]">
+	  <xsl:apply-templates select = "@NOME-COMPLETO-DO-AUTOR"/>
+	  and
+	</xsl:for-each>
+	<xsl:apply-templates select = "AUTORES[position()=last()]/@NOME-COMPLETO-DO-AUTOR"/>
+      </bibtex:author>
      </bibtex:inproceedings>
    </bibtex:entry>
  </xsl:template>
@@ -147,10 +175,9 @@
      <xsl:apply-templates select = "@ANO-DO-TRABALHO"/>
    </bibtex:year>
  </xsl:template>
-<xsl:template match ="DETALHAMENTO-DO-TRABALHO">
+ <xsl:template match ="DETALHAMENTO-DO-TRABALHO">
    <bibtex:booktitle>
      <xsl:apply-templates select = "@TITULO-DOS-ANAIS-OU-PROCEEDINGS"/>
    </bibtex:booktitle>
  </xsl:template>
- 
 </xsl:stylesheet>
