@@ -57,6 +57,7 @@
     <xsl:apply-templates select = "ARTIGOS-PUBLICADOS"/>
     <xsl:apply-templates select = "LIVROS-E-CAPITULOS"/>
     <xsl:apply-templates select = "TRABALHOS-EM-EVENTOS"/>
+    <xsl:apply-templates select = "TEXTOS-EM-JORNAIS-OU-REVISTAS"/>
   </xsl:template>
 
   <xsl:template match = "ARTIGOS-PUBLICADOS/ARTIGO-PUBLICADO">
@@ -179,5 +180,37 @@
    <bibtex:booktitle>
      <xsl:apply-templates select = "@TITULO-DOS-ANAIS-OU-PROCEEDINGS"/>
    </bibtex:booktitle>
+ </xsl:template>
+
+ <xsl:template match = "TEXTOS-EM-JORNAIS-OU-REVISTAS/TEXTO-EM-JORNAL-OU-REVISTA">
+   <bibtex:article>
+     <xsl:apply-templates select = "DADOS-BASICOS-DO-TEXTO"/>
+     <xsl:apply-templates select = "DETALHAMENTO-DO-TEXTO"/>
+     <bibtex:author>
+       <xsl:for-each select = "AUTORES[not(position()=last())]">
+	 <xsl:apply-templates select = "@NOME-COMPLETO-DO-AUTOR"/>
+	 and
+       </xsl:for-each>
+       <xsl:apply-templates select = "AUTORES[position()=last()]/@NOME-COMPLETO-DO-AUTOR"/>
+     </bibtex:author>
+   </bibtex:article>
+ </xsl:template>
+ 
+ <xsl:template match = "DADOS-BASICOS-DO-TEXTO">
+   <bibtex:title>
+     <xsl:apply-templates select = "@TITULO-DO-TEXTO"/>
+   </bibtex:title>
+   <bibtex:year>
+     <xsl:apply-templates select="@ANO-DO-TEXTO"/>
+   </bibtex:year>
+ </xsl:template>
+ 
+ <xsl:template match = "DETALHAMENTO-DO-TEXTO">
+   <bibtex:journal>
+     <xsl:apply-templates select="@TITULO-DO-JORNAL-OU-REVISTA"/>
+   </bibtex:journal>
+   <bibtex:volume>
+     <xsl:apply-templates select="@VOLUME"/>
+   </bibtex:volume>
  </xsl:template>
 </xsl:stylesheet>
