@@ -58,9 +58,10 @@
     <xsl:apply-templates select = "LIVROS-E-CAPITULOS"/>
     <xsl:apply-templates select = "TRABALHOS-EM-EVENTOS"/>
     <xsl:apply-templates select = "TEXTOS-EM-JORNAIS-OU-REVISTAS"/>
+    <xsl:apply-templates select = "ARTIGOS-ACEITOS-PARA-PUBLICACAO"/>
   </xsl:template>
 
-  <xsl:template match = "ARTIGOS-PUBLICADOS/ARTIGO-PUBLICADO">
+  <xsl:template match = "ARTIGOS-PUBLICADOS/ARTIGO-PUBLICADO | ARTIGOS-ACEITOS-PARA-PUBLICACAO/ARTIGO-ACEITO-PARA-PUBLICACAO">
     <bibtex:entry>
       <bibtex:article>
 	<xsl:apply-templates select = "DADOS-BASICOS-DO-ARTIGO"/>
@@ -183,6 +184,7 @@
  </xsl:template>
 
  <xsl:template match = "TEXTOS-EM-JORNAIS-OU-REVISTAS/TEXTO-EM-JORNAL-OU-REVISTA">
+   <bibtex:entry>
    <bibtex:article>
      <xsl:apply-templates select = "DADOS-BASICOS-DO-TEXTO"/>
      <xsl:apply-templates select = "DETALHAMENTO-DO-TEXTO"/>
@@ -194,6 +196,7 @@
        <xsl:apply-templates select = "AUTORES[position()=last()]/@NOME-COMPLETO-DO-AUTOR"/>
      </bibtex:author>
    </bibtex:article>
+   </bibtex:entry>
  </xsl:template>
  
  <xsl:template match = "DADOS-BASICOS-DO-TEXTO">
