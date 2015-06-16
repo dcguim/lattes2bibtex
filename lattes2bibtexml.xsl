@@ -17,7 +17,7 @@
   </xsl:template>
   
   <xsl:template match = "MESTRADO">
-    <bibtex:entry>
+    <bibtex:entry id = "{@SEQUENCIA-FORMACAO}-masterthesis">
       <bibtex:masterthesis>
 	<bibtex:title>
 	  <xsl:apply-templates select = "@TITULO-DA-DISSERTACAO-TESE"/>
@@ -35,7 +35,7 @@
     </bibtex:entry>
   </xsl:template>
   <xsl:template match = "DOUTORADO">
-    <bibtex:entry>
+    <bibtex:entry id = "{@SEQUENCIA-FORMACAO}-phdthesis">
       <bibtex:phdthesis>
 	<bibtex:title>
 	  <xsl:apply-templates select = "@TITULO-DA-DISSERTACAO-TESE"/>
@@ -62,7 +62,7 @@
   </xsl:template>
 
   <xsl:template match = "ARTIGOS-PUBLICADOS/ARTIGO-PUBLICADO | ARTIGOS-ACEITOS-PARA-PUBLICACAO/ARTIGO-ACEITO-PARA-PUBLICACAO">
-    <bibtex:entry>
+    <bibtex:entry id = "{@SEQUENCIA-PRODUCAO}-article">
       <bibtex:article>
 	<xsl:apply-templates select = "DADOS-BASICOS-DO-ARTIGO"/>
 	<xsl:apply-templates select = "DETALHAMENTO-DO-ARTIGO"/>
@@ -94,7 +94,7 @@
 </xsl:template>
 
   <xsl:template match = "LIVROS-E-CAPITULOS//LIVRO-PUBLICADO-OU-ORGANIZADO">
-    <bibtex:entry>
+    <bibtex:entry id = "{@SEQUENCIA-PRODUCAO}-book">
       <bibtex:book>
 	<xsl:apply-templates select = "DADOS-BASICOS-DO-LIVRO"/>
 	<xsl:apply-templates select = "DETALHAMENTO-DO-LIVRO"/>
@@ -123,7 +123,7 @@
 </xsl:template>
 
  <xsl:template match = "LIVROS-E-CAPITULOS//CAPITULO-DE-LIVRO-PUBLICADO">
-    <bibtex:entry>
+    <bibtex:entry id = "{@SEQUENCIA-PRODUCAO}-incollection">
       <bibtex:incollection>
 	<xsl:apply-templates select = "DADOS-BASICOS-DO-CAPITULO"/>
 	<xsl:apply-templates select = "DETALHAMENTO-DO-CAPITULO"/>
@@ -155,7 +155,7 @@
  </xsl:template>
 
  <xsl:template match = "TRABALHOS-EM-EVENTOS/TRABALHO-EM-EVENTOS">
-   <bibtex:entry>
+   <bibtex:entry id = "{@SEQUENCIA-PRODUCAO}-inproceedings">
      <bibtex:inproceedings>
       <xsl:apply-templates select = "DADOS-BASICOS-DO-TRABALHO"/>
       <xsl:apply-templates select = "DETALHAMENTO-DO-TRABALHO"/>
@@ -184,7 +184,7 @@
  </xsl:template>
 
  <xsl:template match = "TEXTOS-EM-JORNAIS-OU-REVISTAS/TEXTO-EM-JORNAL-OU-REVISTA">
-   <bibtex:entry>
+   <bibtex:entry id = "{@SEQUENCIA-PRODUCAO}-article">
    <bibtex:article>
      <xsl:apply-templates select = "DADOS-BASICOS-DO-TEXTO"/>
      <xsl:apply-templates select = "DETALHAMENTO-DO-TEXTO"/>
