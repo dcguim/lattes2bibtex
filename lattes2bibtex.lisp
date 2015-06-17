@@ -16,6 +16,7 @@
 (defun print-hash (hash)
   "Print the hash structure"
   (maphash #'(lambda (q w)
+	       (format t "[~a]: ~a~%" q w)
 	       (maphash #'(lambda (k v)
 			    (format t "[~a]: ~a~%" k v)) (gethash q hash))) hash))
 
@@ -42,13 +43,23 @@
     (print-hash (lh-hash i))))
 
 (defmethod sax:start-element ((lh lattes-handler) (namespace t) (local-name t) (qname t) (attributes t))
-  (cond ((equal local-name "entry")
-	 (setf (lh-entry-key lh) (sax:attribute-value (sax:find-attribute "id" attributes)))
-	 (setf (gethash (lh-entry-key lh) (lh-hash lh)) (make-hash-table))
-	 (insert-pair (lh-entry-key lh) "key" (lh-entry-key lh) lh))))
+  (if (equal local-name "entry")
+      (progn
+	(setf (lh-entry-key lh) (sax:attribute-value (sax:find-attribute "id" attributes)))
+	(setf (gethash (lh-entry-key lh) (lh-hash lh)) (make-hash-table))
+	(insert-pair (lh-entry-key lh) "key" (lh-entry-key lh) lh))
+      (setf (lh-elem lh) local-name)))
 	
-
-;;(defmethod sax:characters ((lh lattes-handler) data)
-  ;;(cond 
-	
+(defmethod sax:characters ((lh lattes-handler) data)
+  (setf data (string-trim data))
+  (cond ((equal (lh-elem lh) "title")
+	 (insert-pair (lh-entry-key lh) "title" data lh))
+	((equal (lh-elem lh) "school")
+	 (insert-pair (lh-entry-key lh) "school" data lh))
+	((and (equal (lh-elem lh) "author") (not (string= "\n" data)))
+	 (print data)
+	 ;;(print (lh-entry-key lh))
+	 ;;(print (lh-elem lh))
+	 (insert-pair (lh-entry-key lh) "author" data lh))))
+	 
 	 
