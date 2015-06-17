@@ -1,5 +1,7 @@
 (defparameter *directory* "/Users/dcguim/common-lisp/bibtex-project/lattes2bibtex")
 (defparameter *xslt-file* "lattes2bibtexml")
+(defparameter *fields* '("title" "author" "school" "year" "journal" "volume" "publisher" "booktitle"))
+(defparameter *entries* '("masterthesis" "phdthesis" "article" "incollection" "book" "inproceedings" ))
 
 (defclass lattes-handler (sax:default-handler)
  ((hash 
@@ -12,7 +14,6 @@
    :initform ""
    :accessor lh-elem)))
   
-   
 (defun print-hash (hash)
   "Print the hash structure"
   (maphash #'(lambda (q w)
@@ -43,23 +44,27 @@
     (print-hash (lh-hash i))))
 
 (defmethod sax:start-element ((lh lattes-handler) (namespace t) (local-name t) (qname t) (attributes t))
-  (if (equal local-name "entry")
-      (progn
-	(setf (lh-entry-key lh) (sax:attribute-value (sax:find-attribute "id" attributes)))
-	(setf (gethash (lh-entry-key lh) (lh-hash lh)) (make-hash-table))
-	(insert-pair (lh-entry-key lh) "key" (lh-entry-key lh) lh))
-      (setf (lh-elem lh) local-name)))
-	
+  "Setf the instance slots and build the second level of the structure"
+  (cond ((equal local-name "entry")
+	 (setf (lh-entry-key lh) (sax:attribute-value (sax:find-attribute "id" attributes)))
+	 (setf (gethash (lh-entry-key lh) (lh-hash lh)) (make-hash-table))
+	 (insert-pair (lh-entry-key lh) "key" (lh-entry-key lh) lh))
+	((find local-name *entries* :test #'string=)
+	 (insert-pair (lh-entry-key lh) "entry-type" local-name lh))
+	(t setf (lh-elem lh) local-name)))
+
+(defmacro compose-insertions (fields)
+  "The term compose was used to uphold the artistic aspect of macros"
+  (let ((f (eval fields)))
+    `(cond 
+       ,@(loop for i in f collect `((equal (lh-elem lh) ,i)
+				    (insert-pair (lh-entry-key lh) ,i data lh))))))
+	      	
 (defmethod sax:characters ((lh lattes-handler) data)
-  (setf data (string-trim data))
-  (cond ((equal (lh-elem lh) "title")
-	 (insert-pair (lh-entry-key lh) "title" data lh))
-	((equal (lh-elem lh) "school")
-	 (insert-pair (lh-entry-key lh) "school" data lh))
-	((and (equal (lh-elem lh) "author") (not (string= "\n" data)))
-	 (print data)
-	 ;;(print (lh-entry-key lh))
-	 ;;(print (lh-elem lh))
-	 (insert-pair (lh-entry-key lh) "author" data lh))))
+  "Insert the element values to the hash"
+  (setf data (string-trim '(#\Space #\Tab #\Newline) data))
+  (when (string/= "" data)
+    (compose-insertions *fields*)))
+	  
 	 
 	 
