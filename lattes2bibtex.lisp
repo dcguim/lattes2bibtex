@@ -3,6 +3,7 @@
 (defparameter *fields* '("title" "author" "school" "year" "journal" "volume" "publisher" "booktitle"))
 (defparameter *entries* '("masterthesis" "phdthesis" "article" "incollection" "book" "inproceedings" ))
 
+
 (defclass lattes-handler (sax:default-handler)
  ((hash 
     :initform (make-hash-table)
@@ -24,7 +25,8 @@
  (defun insert-pair (entry-key field-key value obj)
    "Insert a field-key pair in the hash of hashes"
    (setf (gethash field-key 
-		  (gethash entry-key (lh-hash obj))) value))
+		  (gethash "dict"
+			   (gethash entry-key (lh-hash obj))) value)))
 
 (defun lattes-to-bibtexml (filename)
   "Assume the xml is in the same *directory* as the XSLT"
@@ -39,19 +41,21 @@
 (defun lattes-to-bibtex (filename)
   "Transform the given filename to bibtexml and then parse it"
   (let ((xml (lattes-to-bibtexml filename))
+	;;(bib-hash (make-hash-table))
 	(i (make-instance 'lattes-handler)))  
     (cxml:parse xml i)
     (print-hash (lh-hash i))))
 
 (defmethod sax:start-element ((lh lattes-handler) (namespace t) (local-name t) (qname t) (attributes t))
-  "Setf the instance slots and build the second level of the structure"
+  "Setf the instance slots and build the first and second level of the hash/bib-entry structure"
   (cond ((equal local-name "entry")
 	 (setf (lh-entry-key lh) (sax:attribute-value (sax:find-attribute "id" attributes)))
-	 (setf (gethash (lh-entry-key lh) (lh-hash lh)) (make-hash-table))
-	 (insert-pair (lh-entry-key lh) "key" (lh-entry-key lh) lh))
+	 (setf (gethash (lh-entry-key lh) (lh-hash lh)) (make-bib-entry))
+	 (setf (gethash "cite-key" (gethash (lh-entry-key lh) (lh-hash lh))) (lh-entry-key lh))
+	 (setf (gethash "dict" (gethash (lh-entry-key lh) (lh-hash lh))) (make-hash-table))
 	((find local-name *entries* :test #'string=)
-	 (insert-pair (lh-entry-key lh) "entry-type" local-name lh))
-	(t setf (lh-elem lh) local-name)))
+	 (setf (gethash "type" (gethash (lh-entry-key lh) (lh-hash lh))) local-name)
+	 (t (setf (lh-elem lh) local-name))))
 
 (defmacro compose-insertions (fields)
   "The term compose was used to uphold the artistic aspect of macros"
