@@ -4,4 +4,4 @@
 
 Status:
 * lattes2bibtexml complete
-* lattes2bibtex in-progress
+* lattes2bibtex complete
