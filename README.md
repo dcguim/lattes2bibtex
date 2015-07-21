@@ -5,3 +5,5 @@
 Status:
 * lattes2bibtexml complete
 * lattes2bibtex complete
+* asdf complete
+* web interface in-progress

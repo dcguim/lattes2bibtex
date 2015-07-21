@@ -1,3 +1,5 @@
+(in-package :lattes2bibtex)
+
 (defparameter *directory* "/Users/dcguim/common-lisp/bibtex-project/lattes2bibtex")
 (defparameter *xslt-file* "lattes2bibtexml")
 (defparameter *fields* '("title" "author" "school" "year" "journal" "volume" "publisher" "booktitle"))
@@ -46,7 +48,6 @@
   (let ((xml (lattes-to-bibtexml filename))
 	(i (make-instance 'lattes-handler)))  
     (cxml:parse xml i)
-    (print-hash (lh-hash i))
     (loop for entry being each hash-value in (lh-hash i) do
 	 (bibtex-runtime:write-bib-entry entry))))
 
@@ -73,6 +74,3 @@
   (setf data (string-trim '(#\Space #\Tab #\Newline) data))
   (when (string/= "" data)
     (compose-insertions *fields*)))
-	  
-	 
-	 
