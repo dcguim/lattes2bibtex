@@ -11,8 +11,9 @@
   :version "0.0.1"
   :author "Dan C. Guim <dcguim@gmail.com>"
   :serial t
-  :components ((:file "packages")	       
-               (:file "lattes2bibtex"))
+  :components ((:file "packages")
+	       (:file "constants")
+               (:file "lattes2bibtex" :depends-on ("constants")))
   :depends-on (:cxml
 	       :xuriella
 	       :bibtex))
